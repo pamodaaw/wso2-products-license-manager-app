@@ -456,7 +456,7 @@ class GenerateLicense extends Component {
             />,
         ];
         const actionsError = [
-            <Link to={'/app/requestLicense'}>
+            <Link to={'/app/manageLicense'}>
                 <FlatButton
                     label="Back"
                     primary={true}

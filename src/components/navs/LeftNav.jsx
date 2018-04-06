@@ -40,7 +40,7 @@ class LeftNav extends Component {
                             leftIcon={<ContentCopy />}
                         />
                     </Link>
-                    <Link to="/app/requestLicense" >
+                    <Link to="/app/manageLicense" >
                         <MenuItem
                             className="icon-menu-wrapper"
                             primaryText="License"

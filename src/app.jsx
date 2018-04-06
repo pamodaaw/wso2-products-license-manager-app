@@ -28,7 +28,7 @@ import AcceptLibrary from './scenes/library/AcceptLibrary';
 import RejectLibrary from './scenes/library/RejectLibrary';
 import WaitingLibrary from './scenes/library/WaitingLibrary';
 import PendingLibrary from './scenes/library/PendingLibrary';
-import RequestLicense from './scenes/license/RequestLicense';
+import ManageLicense from './scenes/license/ManageLicense';
 import GenerateLicense from './scenes/license/GenerateLicense';
 import WaitingLicense from './scenes/license/WaitingLicense';
 import AcceptLicense from './scenes/license/AcceptLicense';
@@ -64,7 +64,7 @@ class App extends Component {
                     <Route path={'requestLibrary'} component={RequestLibrary} />
                     <Route path={'acceptLibrary'} component={AcceptLibrary} />
                     <Route path={'rejectLibrary'} component={RejectLibrary} />
-                    <Route path={'requestLicense'} component={RequestLicense} />
+                    <Route path={'manageLicense'} component={ManageLicense} />
                     <Route path={'generateLicense'} component={GenerateLicense} />
                     <Route path={'waitingLicense'} component={WaitingLicense} />
                     <Route path={'acceptLicense'} component={AcceptLicense} />

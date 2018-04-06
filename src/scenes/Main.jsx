@@ -48,7 +48,7 @@ class Main extends Component {
                     <div className="row">
                         <div className="col-md-1" />
                         <div className="col-md-5">
-                            <Link to="/app/requestLicense" className="btn btn-success btn-lg btn-block">
+                            <Link to="/app/manageLicense" className="btn btn-success btn-lg btn-block">
                                 <span>
                                     <i className="fa fa-id-card fa-1x" />
                                 </span>
