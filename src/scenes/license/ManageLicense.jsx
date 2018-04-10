@@ -8,6 +8,7 @@ import LinearProgress from 'material-ui/LinearProgress';
 import RaisedButton from 'material-ui/RaisedButton';
 import Snackbar from 'material-ui/Snackbar';
 import Pack from '../../services/msf4j/Pack';
+import DataManager from '../../services/msf4j/DataManager';
 import styles from '../../mystyles';
 import ValidateUser from '../../services/authentication/ValidateUser';
 import zipfile from '../../assets/images/zip-file.png';
@@ -27,22 +28,23 @@ class ManageLicense extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            openUploadModal: false,
-            files: [],
-            displayUploadIcon: 'block',
-            displayUploadedFile: 'none',
-            displayProgress: 'none',
-            displayBox: 'block',
-            displayNext: 'none',
-            completed: 100,
-            fileName: '',
-            file: '',
+            listOfPacks: [],
+            selectedPack: 'none',
             open: false,
             openError: false,
-            userDetails: [],
+            openSuccess: false,
+            openLicense: false,
+            errorIcon: '',
+            displayProgress: 'block',
+            displayBox: 'block',
+            displayForm: 'none',
+            displayLoader: 'none',
+            displayErrorBox: 'none',
+            buttonState: false,
         };
-        this.uploadPack = this.uploadPack.bind(this);
-        this.progress = this.progress.bind(this);
+        // this.uploadPack = this.uploadPack.bind(this);
+        this.selectPack = this.selectPack.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.handleRequestClose = this.handleRequestClose.bind(this);
         this.handleClickError = this.handleClickError.bind(this);
@@ -53,27 +55,27 @@ class ManageLicense extends Component {
     * componentWillMount
     */
     componentWillMount() {
-        Pack.validateUser();
-        ValidateUser.getUserDetails().then((response) => {
+        // Pack.validateUser();
+        // ValidateUser.getUserDetails().then((response) => {
+        //     this.setState(() => {
+        //         return {
+        //             userDetails: response,
+        //         };
+        //     });
+        // });
+        DataManager.getUploadedPacks().then((response) => {
             this.setState(() => {
                 return {
-                    userDetails: response,
+                    listOfPacks: response.data.responseData,
+                    displayForm: 'block',
+
                 };
             });
+        }).catch((error) => {
+            throw new Error(error);
         });
     }
-    /**
-    * componentDidMount
-    */
-    componentDidMount() {
-        this.timer = setTimeout(() => this.progress(5), 1);
-    }
-    /**
-    * componentWillUnmount
-    */
-    componentWillUnmount() {
-        clearTimeout(this.timer);
-    }
+
     /**
     * handleClick
     */
@@ -107,24 +109,20 @@ class ManageLicense extends Component {
         });
     }
     /**
-    * progress
-    * @param {any} completed files
-    */
-    progress(completed) {
-        if (completed > 100) {
-            this.setState({ completed: 100 });
-            clearTimeout(this.timer);
-        } else {
-            this.setState({ completed });
-            const diff = 9;
-            let progressVal = 0;
-            if ((completed + diff) > 90) {
-                progressVal = 90;
-            } else {
-                progressVal = completed + diff;
-            }
-            this.timer = setTimeout(() => this.progress(progressVal), 6000);
-        }
+     * handle the pack selection
+     */
+    selectPack(e) {
+        console.log("pack selected" + e.currentTarget.value);
+        this.setState({
+            selectedPack: e.currentTarget.value,
+        });
+    }
+    /**
+     * handle the form submission
+     */
+    handleSubmit() {
+        console.log("form submit with the pack " + this.state.selectedPack);
+
     }
     /**
     * reload page
@@ -132,110 +130,56 @@ class ManageLicense extends Component {
     reloadPage() {
         window.location.reload();
     }
-    /**
-    * Upload pack
-    * @param {any} files files
-    */
-    uploadPack() {
-        this.setState(() => {
-            return {
-                completed: 0,
-                displayBox: 'none',
-                displayProgress: 'block',
-            };
-        });
-        Pack.upload(this.state.file).then((response) => {
-            if (response.data.responseType === 'Done') {
-                this.progress(101);
-                this.handleClick();
-                this.setState(() => {
-                    return {
-                        displayNext: 'block',
-                        displayBack: 'none',
-                    };
-                });
-            } else {
-                clearTimeout(this.timer);
-                this.handleClickError();
-                this.setState(() => {
-                    return {
-                        displayBack: 'block',
-                        displayNext: 'none',
-                    };
-                });
-            }
-        });
-    }
+
     /**
     * @class WaitingRequests
     * @extends {Component}
     * @description Sample React component
     */
     render() {
+
+        const packs = this.state.listOfPacks
+        const listOfPackNames = packs.map((pack) =>
+            <div className="radio">
+                <label>
+                    <input type="radio" value={pack.name}
+                        checked={this.state.selectedPack === pack.name} 
+                        onChange={this.selectPack}
+                     />
+                    {pack.name}
+                </label>
+            </div>);
         return (
+
             <div className="container-fluid">
-                <h2 className="text-center">Select a Pack to Generate Lisence</h2>
+                <h2>Select a Pack to Generate Lisence</h2>
                 <br />
                 <div className="row">
-                    <div className="col-md-1" />
+                    {/* {listOfPackNames} */}
+
                     <div className="col-md-10" style={{ display: this.state.displayBox }}>
-      
-                    </div>
-                    <div className="col-md-10" style={{ display: this.state.displayProgress }}>
-                        <br />
-                        <br />
-                        <h4>{this.state.fileName}</h4>
-                        <LinearProgress
-                            mode="determinate"
-                            value={this.state.completed}
-                            color="#0033cc"
-                            style={styles.progressBar}
-                        />
-                        <br />
-                        <div style={{ display: this.state.displayNext }} >
-                            <Snackbar
-                                open={this.state.open}
-                                message="File added successfully. Click Next to generate license"
-                                autoHideDuration={40000}
-                                onRequestClose={this.handleRequestClose}
-                                bodyStyle={styles.snackBar}
-                                contentStyle={styles.snackBarContent}
-                            />
-                            <Link
+                        <form style={{ display: this.state.displayForm }}>
+                            {listOfPackNames}
+                            <div>
+                                <Link
                                 to={{
                                     pathname: '/app/generateLicense',
-                                    query: { packName: this.state.fileName, userEmail: this.state.userDetails.userEmail,
-                                    } }}
+                                    query: { selectedPack: this.state.selectedPack}}}
                             >
-                                <RaisedButton
-                                    type="button"
-                                    label="Next"
-                                    style={styles.nextButton}
-                                    labelColor='#ffffff'
-                                    backgroundColor='#2196F3'
-                                />
+                            <RaisedButton
+                                type="submit"
+                                label="Generate"
+                                style={styles.generateButtonStyle}
+                                labelColor='#ffffff'
+                                backgroundColor='#2196F3'
+                                disabled={this.state.buttonState}
+                            />
                             </Link>
                         </div>
-                        <div style={{ display: this.state.displayBack }} >
-                            <Snackbar
-                                open={this.state.openError}
-                                message="File added fails."
-                                autoHideDuration={40000}
-                                onRequestClose={this.handleRequestCloseError}
-                                bodyStyle={styles.snackBar}
-                                contentStyle={styles.snackBarContent}
-                            />
-                            <RaisedButton
-                                type="button"
-                                label="Back"
-                                style={styles.nextButton}
-                                labelColor='#ffffff'
-                                backgroundColor='#BDBDBD'
-                                onClick={this.reloadPage}
-                            />
-                        </div>
+                        </form>
+
                     </div>
-                    <div className="col-md-1" />
+
                 </div>
             </div>
         );

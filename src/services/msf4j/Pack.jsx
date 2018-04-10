@@ -50,6 +50,22 @@ class Pack extends Component {
             console.log(error);//eslint-disable-line
         });
     }
+
+    extractJars(selectedPack){
+        const url = MainData.microServiceURL + 'extractJars';
+        const requestConfig = {
+            withCredentials: true,
+        };
+        // const requestData = {
+        //     jars: data,
+        //     requestBy: email,
+        // };
+        return axios.post(url, selectedPack, requestConfig).then((response) => {
+            return response;
+        }).catch((error) => {
+            console.log(error);//eslint-disable-line
+        });
+    }
     /**
     * enterJars
     * @param {json} data json

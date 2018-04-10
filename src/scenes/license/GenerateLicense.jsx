@@ -43,7 +43,9 @@ class GenerateLicense extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            packName: props.location.query.packName,//eslint-disable-line
+            // packName: props.location.query.packName,//eslint-disable-line
+            packName: props.location.query.selectedPack,//eslint-disable-line
+
             userEmail: props.location.query.userEmail,//eslint-disable-line
             nameMissingJars: [],
             nameJars: [],
@@ -65,6 +67,7 @@ class GenerateLicense extends Component {
             licenseMissingComponents: [],
             licenseMissingLibraries: [],
             license: [],
+            listOfPacks : [],
             stepIndex: 1,
         };
         this.handleOpen = this.handleOpen.bind(this);
@@ -88,7 +91,9 @@ class GenerateLicense extends Component {
     * @description componentWillMount
     */
     componentWillMount() {
-        Pack.getNameMissingJars().then((response) => {
+
+        // Pack.getNameMissingJars().then((response) => {
+            Pack.extractJars(this.state.packName).then((response) => {
             if (response.data.responseData.length === 0) {
                 Pack.enterJars(response.data.responseData, this.state.userEmail).then((responseNxt) => {
                     if (responseNxt.data.responseType === 'Done') {
@@ -332,6 +337,7 @@ class GenerateLicense extends Component {
             throw new Error(error);
         });
         /* eslint-enable */
+        hashHistory.push('/');
     }
     /**
     * handle open
@@ -488,6 +494,7 @@ class GenerateLicense extends Component {
         const library = [];
         const license = [];
         const licenseList = this.state.license;
+
         let displayComponent = 'none';
         let displayLibrary = 'none';
         let k = 0;

@@ -57,6 +57,16 @@ class AcceptLicense extends Component {
     * @description componentWillMount
     */
     componentWillMount() {
+        DataManager.getUploadedPacks().then((response) => {
+            this.setState(() => {
+                console.log(response);
+                return {
+                    listOfPacks: response.data.responseData,
+                };
+            });
+        }).catch((error) => {
+            throw new Error(error);
+        });
         DataManager.selectLicense().then((response) => {
             this.setState(() => {
                 return {
@@ -163,12 +173,12 @@ class AcceptLicense extends Component {
                 return jar;
             } else {
                 const jarFile = {
-                    TEMPLIB_FILE_NAME: jar.TEMPLIB_FILE_NAME,
-                    TEMPLIB_ID: jar.TEMPLIB_ID,
-                    TEMPLIB_TYPE: jar.TEMPLIB_TYPE,
-                    TEMPLIB_NAME: jar.TEMPLIB_NAME,
-                    TEMPLIB_VERSION: jar.TEMPLIB_VERSION,
-                    TEMPLIB_PARENT: jar.TEMPLIB_PARENT,
+                    TEMPLIB_FILE_NAME: jar.TL_FILE_NAME,
+                    TEMPLIB_ID: jar.TL_ID,
+                    TEMPLIB_TYPE: jar.TL_TYPE,
+                    TEMPLIB_NAME: jar.TL_NAME,
+                    TEMPLIB_VERSION: jar.TL_VERSION,
+                    TEMPLIB_PARENT: jar.TL_PARENT,
                     licenseId: m,
                 };
                 return (jarFile);
@@ -300,7 +310,7 @@ class AcceptLicense extends Component {
         let displayLibrary = 'none';
         const component = [];
         const library = [];
-        const license = [];
+        const license = [];;
         const licenseList = this.state.license;
         let k = 0;
         const actionsLicense = [
@@ -404,9 +414,9 @@ class AcceptLicense extends Component {
             for (i = 0; i < jars.length; i++) {
                 library.push(
                     <TableRow key={jars[i].ID}>
-                        <TableRowColumn key={k}>{jars[i].TEMPLIB_NAME}</TableRowColumn>
-                        <TableRowColumn key={k + 1}>{jars[i].TEMPLIB_VERSION}</TableRowColumn>
-                        <TableRowColumn key={k + 1}>{jars[i].TEMPLIB_FILE_NAME}</TableRowColumn>
+                        <TableRowColumn key={k}>{jars[i].TL_NAME}</TableRowColumn>
+                        <TableRowColumn key={k + 1}>{jars[i].TL_VERSION}</TableRowColumn>
+                        <TableRowColumn key={k + 1}>{jars[i].TL_FILE_NAME}</TableRowColumn>
                         <TableRowColumn key={k + 2}>
                             <SelectField
                                 value={this.state.licenseMissingLibraries[i].licenseId}

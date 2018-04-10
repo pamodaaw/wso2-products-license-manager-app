@@ -29,6 +29,8 @@ import RejectLibrary from './scenes/library/RejectLibrary';
 import WaitingLibrary from './scenes/library/WaitingLibrary';
 import PendingLibrary from './scenes/library/PendingLibrary';
 import ManageLicense from './scenes/license/ManageLicense';
+// import ManageLicense from './scenes/license/RequestLicense';
+
 import GenerateLicense from './scenes/license/GenerateLicense';
 import WaitingLicense from './scenes/license/WaitingLicense';
 import AcceptLicense from './scenes/license/AcceptLicense';

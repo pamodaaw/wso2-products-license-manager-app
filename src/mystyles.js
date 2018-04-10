@@ -9,6 +9,12 @@ export default {
         float: 'right',
         marginRight: 5,
     },
+    generateButtonStyle: {
+        width: 120,
+        height: 40,
+        float: 'left',
+        marginRight: 5,
+    },
     style: {
         paper: {
             display: 'inline-block',
