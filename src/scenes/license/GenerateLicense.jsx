@@ -53,6 +53,7 @@ class GenerateLicense extends Component {
             openError: false,
             openSuccess: false,
             openLicense: false,
+            confirmLicense : false,
             errorIcon: '',
             displayProgress: 'block',
             displayForm: 'none',
@@ -67,15 +68,19 @@ class GenerateLicense extends Component {
             licenseMissingComponents: [],
             licenseMissingLibraries: [],
             license: [],
-            listOfPacks : [],
             stepIndex: 1,
         };
+        this.handleAddLicense = this.handleAddLicense.bind(this);
+        this.handleComponentSelect = this.handleComponentSelect.bind(this);
+        this.handleLibrarySelect = this.handleLibrarySelect.bind(this);
         this.handleOpen = this.handleOpen.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleOpenError = this.handleOpenError.bind(this);
         this.handleCloseError = this.handleCloseError.bind(this);
         this.handleOpenSuccess = this.handleOpenSuccess.bind(this);
         this.handleCloseSuccess = this.handleCloseSuccess.bind(this);
+        this.handleOpenConfirm = this.handleOpenConfirm.bind(this);
+        this.handleCloseConfirm = this.handleCloseConfirm.bind(this);
         this.handleNext = this.handleNext.bind(this);
         this.handlePrev = this.handlePrev.bind(this);
         this.reloadPage = this.reloadPage.bind(this);
@@ -84,6 +89,7 @@ class GenerateLicense extends Component {
         this.setVersion = this.setVersion.bind(this);
         this.generateLicense = this.generateLicense.bind(this);
         this.backToMain = this.backToMain.bind(this);
+
     }
     /**
     * @class NameErrorJarsLicense
@@ -92,8 +98,17 @@ class GenerateLicense extends Component {
     */
     componentWillMount() {
 
+        DataManager.selectLicense().then((response) => {
+            this.setState(() => {
+                return {
+                    license: response.data.responseData,
+                };
+            });
+        }).catch((error) => {
+            throw new Error(error);
+        });
         // Pack.getNameMissingJars().then((response) => {
-            Pack.extractJars(this.state.packName).then((response) => {
+        Pack.extractJars(this.state.packName).then((response) => {
             if (response.data.responseData.length === 0) {
                 Pack.enterJars(response.data.responseData, this.state.userEmail).then((responseNxt) => {
                     if (responseNxt.data.responseType === 'Done') {
@@ -108,20 +123,6 @@ class GenerateLicense extends Component {
                                     licenseMissingComponents: responseNxt.data.component,
                                     licenseMissingLibraries: responseNxt.data.library,
                                     stepIndex: 3,
-                                };
-                            });
-                        } else if (responseNxt.data.library.length > 0 || responseNxt.data.component.length > 0) {
-                            this.setState(() => {
-                                return {
-                                    displayErrorBox: 'block',
-                                    header: 'Error! Missing License',
-                                    displayFormLicense: 'none',
-                                    displayLoader: 'none',
-                                    displayProgress: 'none',
-                                    errorIcon: <ErrorIcon color={red500} />,
-                                    licenseMissingComponents: [],
-                                    licenseMissingLibraries: [],
-                                    stepIndex: 2,
                                 };
                             });
                         } else {
@@ -165,15 +166,6 @@ class GenerateLicense extends Component {
             throw new Error(error);
         });
 
-        DataManager.selectLicense().then((response) => {
-            this.setState(() => {
-                return {
-                    license: response.data.responseData,
-                };
-            });
-        }).catch((error) => { 
-            throw new Error(error);
-        });
     }
     /**
     * @param {any} e event
@@ -240,6 +232,7 @@ class GenerateLicense extends Component {
                 displayLoader: 'block',
             };
         });
+
         Pack.enterJars(this.state.nameJars, this.state.userEmail).then((responseNxt) => {
             if (responseNxt.data.responseType === 'Done') {
                 if (responseNxt.data.component.length === 0 && responseNxt.data.library.length === 0) {
@@ -253,20 +246,6 @@ class GenerateLicense extends Component {
                             licenseMissingComponents: responseNxt.data.component,
                             licenseMissingLibraries: responseNxt.data.library,
                             stepIndex: 3,
-                        };
-                    });
-                } else if (responseNxt.data.library.length > 0 || responseNxt.data.component.length > 0) {
-                    this.setState(() => {
-                        return {
-                            displayErrorBox: 'block',
-                            header: 'Error! Missing License',
-                            displayFormLicense: 'none',
-                            displayLoader: 'none',
-                            displayProgress: 'none',
-                            errorIcon: <ErrorIcon color={red500} />,
-                            licenseMissingComponents: [],
-                            licenseMissingLibraries: [],
-                            stepIndex: 2,
                         };
                     });
                 } else {
@@ -292,6 +271,20 @@ class GenerateLicense extends Component {
                         header: 'Unknown Error occured.',
                     };
                 });
+            }
+        }).catch((error) => {
+            throw new Error(error);
+        });
+    }
+    handleAddLicense(e){
+        e.preventDefault();
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+        Pack.addLicense(this.state.licenseMissingComponents,this.state.licenseMissingLibraries).then((responseNxt) => {
+            if (responseNxt.data.responseType === 'Done') {
+                console.log("successfully added license");
+            } else {
+                console.log("error while adding license license");
             }
         }).catch((error) => {
             throw new Error(error);
@@ -360,6 +353,21 @@ class GenerateLicense extends Component {
         this.setState(() => {
             return {
                 open: false,
+            };
+        });
+    }
+
+    handleOpenConfirm(){
+        this.setState(() => {
+            return {
+                confirmLicense: true,
+            };
+        });
+    }
+    handleCloseConfirm(){
+        this.setState(() => {
+            return {
+                confirmLicense: false,
             };
         });
     }
@@ -442,6 +450,63 @@ class GenerateLicense extends Component {
         hashHistory.push('/');
     }
     /**
+    * handleComponentSelect
+    * @param {any} event event
+    * @param {any} j event
+    * @param {any} n event
+    * @param {any} m event
+    */
+    handleComponentSelect(event, j, n, m) {
+        const comp = this.state.licenseMissingComponents.map((jar, i) => {
+            if (i !== event) {
+                return jar;
+            } else {
+                const jarFile = {
+                    index:jar.index,
+                    name: jar.name,
+                    version: jar.version,
+                    type: jar.type,
+                    licenseId: m,
+                };
+                return (jarFile);
+            }
+        });
+        this.setState(() => {
+            return {
+                licenseMissingComponents: comp,
+            };
+        });
+    }
+    /**
+    * handleLibrarySelect
+    * @param {any} event event
+    * @param {any} j event
+    * @param {any} n event
+    * @param {any} m event
+    */
+    handleLibrarySelect(event, j, n, m) {
+        const lib = this.state.licenseMissingLibraries.map((jar, i) => {
+            if (i !== event) {
+                return jar;
+            } else {
+                const jarFile = {
+                    index:jar.index,
+                    name: jar.name,
+                    version: jar.version,
+                    type: jar.type,
+                    licenseId: m,
+                };
+                return (jarFile);
+            }
+        });
+        this.setState(() => {
+            return {
+                licenseMissingLibraries: lib,
+            };
+        });
+    }
+
+    /**
     * @class WaitingRequests
     * @extends {Component}
     * @description Sample React component
@@ -459,6 +524,18 @@ class GenerateLicense extends Component {
                 primary={true}
                 keyboardFocused={true}
                 onClick={this.enterJars}
+            />,
+        ];
+        const licenseConfirmActions = [
+            <FlatButton
+                label="Save"
+                primary={true}
+                onClick={this.handleAddLicense}
+            />,
+            <FlatButton
+                label="Recheck"
+                primary={true}
+                onClick={this.handleCloseConfirm}
             />,
         ];
         const actionsError = [
@@ -503,7 +580,7 @@ class GenerateLicense extends Component {
                 <MenuItem
                     value={licenseList[i].LICENSE_ID}
                     key={licenseList[i].LICENSE_ID}
-                    primaryText={licenseList[i].LICENSE_NAME}
+                    primaryText={licenseList[i].LICENSE_KEY}
                 />
             );
         }
@@ -515,18 +592,16 @@ class GenerateLicense extends Component {
             for (i = 0; i < jars.length; i++) {
                 table.push(
                     <TableRow key={jars[i].ID}>
-                        <TableRowColumn key={k}>{jars[i].id}</TableRowColumn>
-                        <TableRowColumn key={k + 1}>{jars[i].name}</TableRowColumn>
-                        <TableRowColumn key={k + 2}>
+                        <TableRowColumn key={k}>{jars[i].name}</TableRowColumn>
+                        <TableRowColumn key={k + 1}>
                             <TextField
                                 name={jars[i].id.toString()}
                                 onChange={this.setName}
                                 hintText='Enter name'
                             />
                         </TableRowColumn>
-                        <TableRowColumn key={k + 3}>
+                        <TableRowColumn key={k + 2}>
                             <TextField
-                                name={jars[i].id.toString()}
                                 onChange={this.setVersion}
                                 hintText='Enter version'
                             />
@@ -545,12 +620,13 @@ class GenerateLicense extends Component {
             for (i = 0; i < jars.length; i++) {
                 index = index + 1;
                 component.push(
-                    <TableRow key={jars[i].ID}>
-                        <TableRowColumn key={k}>{jars[i].id}</TableRowColumn>
-                        <TableRowColumn key={k + 1}>{jars[i].name}</TableRowColumn>
-                        <TableRowColumn key={k + 2}>
+                    <TableRow key={i}>
+                        <TableRowColumn key={k}>{jars[i].name}</TableRowColumn>
+                        <TableRowColumn key={k + 1}>{jars[i].version}</TableRowColumn>
+                        <TableRowColumn key={k + 2}>{jars[i].type}</TableRowColumn>
+                        <TableRowColumn key={k + 3}>
                             <SelectField
-                                value={this.state.licenseMissingComponents[i].license}
+                                value={this.state.licenseMissingComponents[i].licenseId}
                                 onChange={this.handleComponentSelect.bind(this, i)}
                                 maxHeight={200}
                                 floatingLabelText="Select license"
@@ -573,12 +649,13 @@ class GenerateLicense extends Component {
             const jars = this.state.licenseMissingLibraries;
             for (i = 0; i < jars.length; i++) {
                 library.push(
-                    <TableRow key={jars[i].ID}>
-                        <TableRowColumn key={k}>{jars[i].id}</TableRowColumn>
-                        <TableRowColumn key={k + 1}>{jars[i].name}</TableRowColumn>
-                        <TableRowColumn key={k + 2}>
+                    <TableRow key={i}>
+                        <TableRowColumn key={k}>{jars[i].name}</TableRowColumn>
+                        <TableRowColumn key={k + 1}>{jars[i].version}</TableRowColumn>
+                        <TableRowColumn key={k + 2}>{jars[i].type}</TableRowColumn>
+                        <TableRowColumn key={k + 3}>
                             <SelectField
-                                value={this.state.licenseMissingLibraries[i].license}
+                                value={this.state.licenseMissingLibraries[i].licenseId}
                                 onChange={this.handleLibrarySelect.bind(this, i)}
                                 maxHeight={200}
                                 floatingLabelText="Select license"
@@ -607,7 +684,7 @@ class GenerateLicense extends Component {
                         <StepLabel>Check JAR Names</StepLabel>
                     </Step>
                     <Step>
-                        <StepLabel icon={this.state.errorIcon}>Check Missing License</StepLabel>
+                        <StepLabel>Check Missing License</StepLabel>
                     </Step>
                     <Step>
                         <StepLabel>Download License</StepLabel>
@@ -617,7 +694,6 @@ class GenerateLicense extends Component {
                     <Table>
                         <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
                             <TableRow key={0}>
-                                <TableHeaderColumn>ID</TableHeaderColumn>
                                 <TableHeaderColumn>JAR</TableHeaderColumn>
                                 <TableHeaderColumn>Input Name</TableHeaderColumn>
                                 <TableHeaderColumn>Input Version</TableHeaderColumn>
@@ -648,6 +724,50 @@ class GenerateLicense extends Component {
                     </div>
                 </form>
                 {/* eslint-disable max-len */}
+                <form onSubmit={this.handleOpenConfirm} style={{ display: this.state.displayFormLicense }}>
+                    <div>
+                        {/* <Subheader>Components</Subheader> */}
+                        <Table>
+                            <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+                                <TableRow key={0}>
+                                    <TableHeaderColumn>Name</TableHeaderColumn>
+                                    <TableHeaderColumn>Version</TableHeaderColumn>
+                                    <TableHeaderColumn>Type</TableHeaderColumn>
+                                    <TableHeaderColumn>Select License</TableHeaderColumn>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody displayRowCheckbox={false} ref={(c) => { this.com = c; }}>
+                                {component}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <br />
+                    <div>
+                        {/* <Subheader>Libraries</Subheader> */}
+                        <Table>
+                            <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+                                <TableRow key={0}>
+                                    <TableHeaderColumn>Name</TableHeaderColumn>
+                                    <TableHeaderColumn>Version</TableHeaderColumn>
+                                    <TableHeaderColumn>Type</TableHeaderColumn>
+                                    <TableHeaderColumn>Select License</TableHeaderColumn>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody displayRowCheckbox={false}>
+                                {library}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <br />
+                    <RaisedButton
+                        type="submit"
+                        label="Accept and Save"
+                        style={styles.saveButtonStyle}
+                        labelColor='#ffffff'
+                        backgroundColor='#2196F3'
+                        disabled={this.state.buttonState}
+                    />
+                </form>
                 <form onSubmit={this.generateLicense} style={{ display: this.state.displayDownload }}>
                     <br />
                     <br />
@@ -742,7 +862,17 @@ class GenerateLicense extends Component {
                 >
                     Are you sure to save this data ?
                 </Dialog>
+                <Dialog
+                    title="Confirm"
+                    actions={licenseConfirmActions}
+                    modal={false}
+                    open={this.state.confirmLicense}
+                    onRequestClose={this.handleClose}
+                >
+                    Make sure you have added the correct licenses.
+                </Dialog>
             </div>
+
         );
     }
 }

@@ -51,7 +51,11 @@ class Pack extends Component {
         });
     }
 
-    extractJars(selectedPack){
+    /**
+    * extractJars
+    * @returns {Promise} promise
+    */
+    extractJars(selectedPack) {
         const url = MainData.microServiceURL + 'extractJars';
         const requestConfig = {
             withCredentials: true,
@@ -61,6 +65,26 @@ class Pack extends Component {
         //     requestBy: email,
         // };
         return axios.post(url, selectedPack, requestConfig).then((response) => {
+            return response;
+        }).catch((error) => {
+            console.log(error);//eslint-disable-line
+        });
+    }
+
+    /**
+    * addLicense
+    * @returns {Promise} promise
+    */
+    addLicense(components, libraries) {
+        const url = MainData.microServiceURL + 'addLicense';
+        const requestConfig = {
+            withCredentials: true,
+        };
+        const licenseData = {
+            components: components,
+            libraries: libraries,
+        };
+        return axios.post(url, JSON.stringify(licenseData), requestConfig).then((response) => {
             return response;
         }).catch((error) => {
             console.log(error);//eslint-disable-line

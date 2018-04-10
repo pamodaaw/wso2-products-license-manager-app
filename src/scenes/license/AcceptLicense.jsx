@@ -419,7 +419,7 @@ class AcceptLicense extends Component {
                         <TableRowColumn key={k + 1}>{jars[i].TL_FILE_NAME}</TableRowColumn>
                         <TableRowColumn key={k + 2}>
                             <SelectField
-                                value={this.state.licenseMissingLibraries[i].licenseId}
+                                value={1}
                                 onChange={this.handleLibrarySelect.bind(this, i)}
                                 maxHeight={200}
                                 style={styles.selectField}

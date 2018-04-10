@@ -42,9 +42,7 @@ class ManageLicense extends Component {
             displayErrorBox: 'none',
             buttonState: false,
         };
-        // this.uploadPack = this.uploadPack.bind(this);
         this.selectPack = this.selectPack.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.handleRequestClose = this.handleRequestClose.bind(this);
         this.handleClickError = this.handleClickError.bind(this);
@@ -55,14 +53,6 @@ class ManageLicense extends Component {
     * componentWillMount
     */
     componentWillMount() {
-        // Pack.validateUser();
-        // ValidateUser.getUserDetails().then((response) => {
-        //     this.setState(() => {
-        //         return {
-        //             userDetails: response,
-        //         };
-        //     });
-        // });
         DataManager.getUploadedPacks().then((response) => {
             this.setState(() => {
                 return {
@@ -117,13 +107,8 @@ class ManageLicense extends Component {
             selectedPack: e.currentTarget.value,
         });
     }
-    /**
-     * handle the form submission
-     */
-    handleSubmit() {
-        console.log("form submit with the pack " + this.state.selectedPack);
 
-    }
+    // }
     /**
     * reload page
     */

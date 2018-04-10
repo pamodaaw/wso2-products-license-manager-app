@@ -155,6 +155,7 @@ export default {
     },
     selectField: {
         width: '100%',
+        fontFamily: 'Helvetica',
     },
 };
 
