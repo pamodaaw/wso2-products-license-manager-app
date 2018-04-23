@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Reference React App",
   "main": "index.js",
+  "homepage": "./",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf dist",
@@ -18,7 +19,7 @@
   "bugs": {
     "url": "https://github.com/wso2-internal-apps/library-license-repo-manager/issues"
   },
-  "homepage": "https://github.com/wso2-internal-apps/library-license-repo-manager/#readme",
+  "homepage2": "https://github.com/wso2-internal-apps/library-license-repo-manager/#readme",
   "dependencies": {
     "@devexpress/dx-core": "1.0.0-beta.1",
     "@devexpress/dx-react-core": "1.0.0-beta.1",
@@ -38,7 +39,6 @@
     "react-bootstrap": "^0.31.5",
     "react-cookies": "^0.1.0",
     "react-dom": "^15.6.1",
-    "react-drop-to-upload": "^1.0.1",
     "react-pagination-table": "^1.1.0",
     "react-router": "^2.8.1",
     "react-router-server-location": "^2.0.0",

@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
-import Header from '../components/layouts/Header';
+import AppHeader from '../components/layouts/AppHeader';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
+import ValidateUser from '../services/authentication/ValidateUser';
 
 /**
 * @class Main
@@ -13,41 +17,28 @@ class Main extends Component {
     * @extends {Component}
     * @description render method
     */
+   componentWillMount() {
+    ValidateUser.getUserDetails().then((response) => {
+        this.setState(() => {
+            return {
+                username: response.username,
+            };
+        });
+        // this.setPendingRequests(response.userEmail);}
+        // this.setPendingLibrary(response.userEmail);
+    });
+}
     render() {
         return (
-            <div className="container-fluid">
-                <div className="row" id="header">
-                    <div className="col-md-12">
-                        <Header />
-                    </div>
-                </div>
-                <br /><br />
-                <div className="row">
-                    <div className="row">
-                        <div className="col-md-1" />
-                        <div className="col-md-5">
-                            <Link to="/app/requestRepository" className="btn btn-success btn-lg btn-block">
-                                <span>
-                                    <i className="fa fa-github fa-1x" />
-                                </span>
-                                &nbsp;&nbsp;&nbsp;
-                                <b>Request GitHub Repository</b>
-                            </Link>
-                        </div>
-                        <div id="mainIcons" className="col-md-5">
-                            <Link to="/app/requestLibrary" className="btn btn-success btn-lg btn-block">
-                                <span>
-                                    <i className="fa fa-address-book-o fa-1x" />
-                                </span>
-                                &nbsp;&nbsp;&nbsp;
-                                <b>Request 3rd party Library</b>
-                            </Link>
+            <MuiThemeProvider muiTheme={getMuiTheme(darkBaseTheme)}>
+                <div className="container-fluid" style={{paddingLeft:'0px', paddingRight:'0px'}}>
+                    <div className="row" id="header">
+                        <div className="col-sm-12" style={{ display: this.state.displayHeader, paddingTop: '0px'  }} >
+                            <AppHeader username={this.state.username} />
                         </div>
                     </div>
-                    <br />
                     <div className="row">
-                        <div className="col-md-1" />
-                        <div className="col-md-5">
+                    <div className="col-md-5">
                             <Link to="/app/manageLicense" className="btn btn-success btn-lg btn-block">
                                 <span>
                                     <i className="fa fa-id-card fa-1x" />
@@ -56,18 +47,9 @@ class Main extends Component {
                                 <b>Generate License</b>
                             </Link>
                         </div>
-                        <div id="mainIcons" className="col-md-5">
-                            <Link to="/app/ViewbyLibrary" className="btn btn-success btn-lg btn-block">
-                                <span>
-                                    <i className="fa fa-address-book-o fa-1x" />
-                                </span>
-                                &nbsp;&nbsp;&nbsp;
-                                <b>View Third Party Libraries</b>
-                            </Link>
-                        </div>
                     </div>
                 </div>
-            </div>
+            </MuiThemeProvider>
         );
     }
 }

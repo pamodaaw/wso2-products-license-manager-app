@@ -15,8 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+// import configuration from './public/configuration';
+// import {config} from './configuration'
 
 const path = require('path');
+// const configuration = require('./public/configuration');
+// const config = require('./configuration.json')
 
 module.exports = {
     context: path.resolve(__dirname, './src'),
@@ -95,8 +99,9 @@ module.exports = {
           }
     },
     externals: {
-        CONFIG: 'configurations',
-	config:  "configs",
+            // configuration : JSON.stringify(configurations),
+            // configuration: configuration,
+
     },
     
 };

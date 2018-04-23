@@ -1,0 +1,4 @@
+{
+    "appServiceUrl" : "http://10.100.0.106:9763/licenseManager/manageUser/",
+    "microServiceUrl": "http://10.100.0.106:9763/licenseManager/manageLicense/"
+}

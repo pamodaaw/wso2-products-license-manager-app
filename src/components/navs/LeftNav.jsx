@@ -24,54 +24,15 @@ class LeftNav extends Component {
     */
     render() {
         return (
-            <Paper style={styles.style.paper}>
                 <Menu style={styles.menu}>
-                    <Link to="/app/requestRepository" >
-                        <MenuItem
-                            className="icon-menu-wrapper"
-                            primaryText="Repository"
-                            leftIcon={<LibraryBooks />}
-                        />
-                    </Link>
-                    <Link to="/app/requestLibrary" >
-                        <MenuItem
-                            className="icon-menu-wrapper"
-                            primaryText="Library"
-                            leftIcon={<ContentCopy />}
-                        />
-                    </Link>
                     <Link to="/app/manageLicense" >
                         <MenuItem
                             className="icon-menu-wrapper"
-                            primaryText="License"
+                            primaryText="Home"
                             leftIcon={<Description />}
                         />
                     </Link>
-                    <List>
-                        <ListItem
-                            primaryText="Dependency"
-                            leftIcon={<ListIcon />}
-                            style={{ paddingRight: 200 }}
-                            initiallyOpen={true}// eslint-disable-line
-                            primaryTogglesNestedList={true}// eslint-disable-line
-                            nestedItems={[
-                                <ListItem
-                                    key={1}
-                                    primaryText="Library"
-                                    leftIcon={<SearchIcon />}
-                                    containerElement={<Link to="/app/ViewbyLibrary" />}
-                                />,
-                                <ListItem
-                                    key={2}
-                                    primaryText="Product/Component"
-                                    leftIcon={<SearchIcon />}
-                                    containerElement={<Link to="/app/ViewbyProductComponent" />}
-                                />,
-                            ]}
-                        />
-                    </List>
                 </Menu>
-            </Paper>
         );
     }
 }

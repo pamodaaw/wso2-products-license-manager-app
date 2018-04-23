@@ -1,16 +1,10 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
-import DropToUpload from 'react-drop-to-upload';
-import CloudUpload from 'material-ui/svg-icons/file/cloud-upload';
-import Card, { CardMedia, CardActions, CardText } from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import LinearProgress from 'material-ui/LinearProgress';
 import RaisedButton from 'material-ui/RaisedButton';
-import Snackbar from 'material-ui/Snackbar';
-import Pack from '../../services/msf4j/Pack';
-import DataManager from '../../services/msf4j/DataManager';
+import Dialog from 'material-ui/Dialog';
+import ServiceManager from '../../services/msf4j/ServiceManager';
 import styles from '../../mystyles';
-import ValidateUser from '../../services/authentication/ValidateUser';
 import zipfile from '../../assets/images/zip-file.png';
 
 /**
@@ -30,10 +24,8 @@ class ManageLicense extends Component {
         this.state = {
             listOfPacks: [],
             selectedPack: 'none',
-            open: false,
             openError: false,
-            openSuccess: false,
-            openLicense: false,
+            errorMessage: "",
             errorIcon: '',
             displayProgress: 'block',
             displayBox: 'block',
@@ -43,17 +35,15 @@ class ManageLicense extends Component {
             buttonState: false,
         };
         this.selectPack = this.selectPack.bind(this);
-        this.handleClick = this.handleClick.bind(this);
-        this.handleRequestClose = this.handleRequestClose.bind(this);
-        this.handleClickError = this.handleClickError.bind(this);
-        this.handleRequestCloseError = this.handleRequestCloseError.bind(this);
         this.reloadPage = this.reloadPage.bind(this);
+        this.handleOpenError = this.handleOpenError.bind(this);
+        this.handleCloseError = this.handleCloseError.bind(this);
     }
     /**
     * componentWillMount
     */
     componentWillMount() {
-        DataManager.getUploadedPacks().then((response) => {
+        ServiceManager.getUploadedPacks().then((response) => {
             this.setState(() => {
                 return {
                     listOfPacks: response.data.responseData,
@@ -62,49 +52,47 @@ class ManageLicense extends Component {
                 };
             });
         }).catch((error) => {
-            throw new Error(error);
+            this.setState(() => {
+                return {
+                    errorMessage: 'Server Error',
+                };
+            });
+            this.handleOpenError();
+            // throw new Error(error);
         });
     }
 
     /**
-    * handleClick
-    */
-    handleClick() {
-        this.setState({
-            open: true,
+* handle open error message
+*/
+    handleOpenError() {
+        this.setState(() => {
+            return {
+                openError: true,
+            };
         });
     }
     /**
-    * handleClickError
-    */
-    handleClickError() {
-        this.setState({
-            openError: true,
+* handle open error message
+*/
+    handleCloseError() {
+        this.setState(() => {
+            return {
+                openError: false,
+            };
         });
     }
-    /**
-    * handleRequestClose
-    */
-    handleRequestClose() {
-        this.setState({
-            open: false,
-        });
-    }
-    /**
-    * handleRequestClose
-    */
-    handleRequestCloseError() {
-        this.setState({
-            openError: false,
-        });
+
+    backToMain() {
+        // hashHistory.push('/');
     }
     /**
      * handle the pack selection
      */
     selectPack(e) {
-        console.log("pack selected" + e.currentTarget.value);
         this.setState({
             selectedPack: e.currentTarget.value,
+            buttonState: true,
         });
     }
 
@@ -122,46 +110,78 @@ class ManageLicense extends Component {
     * @description Sample React component
     */
     render() {
+        const actionsError = [
+            <Link to={'/app/'}>
+                <FlatButton
+                    label="Back"
+                    primary={true}
+                />
+            </Link>,
+
+        ];
 
         const packs = this.state.listOfPacks
         const listOfPackNames = packs.map((pack) =>
             <div className="radio">
                 <label>
                     <input type="radio" value={pack.name}
-                        checked={this.state.selectedPack === pack.name} 
+                        checked={this.state.selectedPack === pack.name}
                         onChange={this.selectPack}
-                     />
+                    />
                     {pack.name}
                 </label>
             </div>);
+        const path = this.state.buttonState ? '/app/generateLicense' : '/app/manageLicense';
         return (
 
             <div className="container-fluid">
+
                 <h2>Select a Pack to Generate Lisence</h2>
                 <br />
+                <div style={{
+                    float: 'left',
+                    backgroundColor: '#f8cdc1',
+                    padding: '20px',
+                    color: '#d62c1a',
+                    marginBottom: '15px'
+                }}>
+                    <strong>Note: </strong> Please upload your pack to the given location.
+  
+                </div>
                 <div className="row">
-                    {/* {listOfPackNames} */}
 
                     <div className="col-md-10" style={{ display: this.state.displayBox }}>
+
+
                         <form style={{ display: this.state.displayForm }}>
                             {listOfPackNames}
-                            <div>
-                                <Link
+
+                            <Link
                                 to={{
-                                    pathname: '/app/generateLicense',
-                                    query: { selectedPack: this.state.selectedPack}}}
+                                    pathname: path,
+                                    query: { selectedPack: this.state.selectedPack }
+                                }}
                             >
-                            <RaisedButton
-                                type="submit"
-                                label="Generate"
-                                style={styles.generateButtonStyle}
-                                labelColor='#ffffff'
-                                backgroundColor='#2196F3'
-                                disabled={this.state.buttonState}
-                            />
+                                <RaisedButton
+                                    type="submit"
+                                    label="Generate"
+                                    style={styles.generateButtonStyle}
+                                    labelColor='#ffffff'
+                                    backgroundColor='#2196F3'
+                                    disabled={!this.state.buttonState}
+                                />
                             </Link>
-                        </div>
+
                         </form>
+                        <Dialog
+                            title="Error"
+                            actions={actionsError}
+                            modal={false}
+                            open={this.state.openError}
+                            onRequestClose={this.backToMain}
+                        >
+                            {this.state.errorMessage}
+                        </Dialog>
 
                     </div>
 

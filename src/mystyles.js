@@ -23,7 +23,7 @@ export default {
             width: '100%',
             fontSize: '10px',
             fontFamily: 'Helvetica',
-            backgroundColor: '#222222',
+            backgroundColor:'rgb(44, 62, 79)',
             overflowY: 'hidden !important',
             marginTop: 0,
             margin: '0px 0px 0px 0px',
@@ -139,8 +139,8 @@ export default {
         zIndex: 2,
     },
     menu: {
-        marginTop: '-8px',
-        marginBottom: '-8px',
+        marginTop: '0px',
+        marginBottom: '0px',
     },
     menuItemChild: {
         marginTop: '-8px',
