@@ -57,7 +57,7 @@ class AcceptLicense extends Component {
     * @description componentWillMount
     */
     componentWillMount() {
-        DataManager.getUploadedPacks().then((response) => {
+        ServiceManager.getUploadedPacks().then((response) => {
             this.setState(() => {
                 console.log(response);
                 return {
@@ -67,7 +67,7 @@ class AcceptLicense extends Component {
         }).catch((error) => {
             throw new Error(error);
         });
-        DataManager.selectLicense().then((response) => {
+        ServiceManager.selectLicense().then((response) => {
             this.setState(() => {
                 return {
                     license: response.data.responseData,

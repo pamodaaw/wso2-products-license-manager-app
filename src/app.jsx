@@ -17,10 +17,9 @@
  */
 
 import React, { Component } from 'react';
-import { Router, Route, IndexRoute, hashHistory } from 'react-router';
+import { Router, Route, hashHistory} from 'react-router';
 import Root from './scenes/Root';
-import Main from './scenes/Main';
-import ManageLicense from './scenes/license/ManageLicense';
+import ManagePacks from './scenes/license/ManagePacks';
 import ManageJars from './scenes/license/ManageJars';
 import GenerateLicense from './scenes/license/GenerateLicense';
 
@@ -39,10 +38,10 @@ class App extends Component {
         return (
             <Router history={hashHistory}>
                 <Route path={'/app'} component={Root} >
-                    <Route path={'manageLicense'} component={ManageLicense} />
+                    <Route path={'managePacks'} component={ManagePacks} />
                     <Route path={'manageJars'} component={ManageJars} />
                     <Route path={'generateLicense'} component={GenerateLicense} />
-                    <Route path={'/'} component={ManageLicense} />
+                    <Route path={'/'} component={ManagePacks} />
                 </Route>
             </Router>
         );

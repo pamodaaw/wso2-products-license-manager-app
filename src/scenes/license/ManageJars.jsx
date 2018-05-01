@@ -8,6 +8,7 @@ import {
     TableBody,
     TableRowColumn,
 } from 'material-ui/Table';
+import Subheader from 'material-ui/Subheader';
 import {
     Step,
     Stepper,
@@ -26,23 +27,21 @@ import { red500 } from 'material-ui/styles/colors';
 import ServiceManager from '../../services/msf4j/ServiceManager';
 import styles from '../../mystyles';
 import textFile from '../../assets/images/txt-file.png';
-import licenseGenerator from './GenerateLicense';
 /**
-* @class NameErrorJarsLicense
-* @extends {Component}
-* @description Get user details
-*/
-class GenerateLicense extends Component {
+ * @class NameErrorJarsLicense
+ * @extends {Component}
+ * @description Get user details
+ */
+class ManageJars extends Component {
     /**
-    * @class NameErrorJarsLicense
-    * @extends {Component}
-    * @param {any} props props for constructor
-    * @description Sample React component
-    */
+     * @class NameErrorJarsLicense
+     * @extends {Component}
+     * @param {any} props props for constructor
+     * @description Sample React component
+     */
     constructor(props) {
         super(props);
         this.state = {
-            // packName: props.location.query.packName,//eslint-disable-line
             packName: props.location.query.selectedPack,//eslint-disable-line
 
             userEmail: props.location.query.userEmail,//eslint-disable-line
@@ -68,6 +67,7 @@ class GenerateLicense extends Component {
             licenseMissingLibraries: [],
             license: [],
             stepIndex: 1,
+            errorMessage: ''
         };
         this.handleAddLicense = this.handleAddLicense.bind(this);
         this.handleComponentSelect = this.handleComponentSelect.bind(this);
@@ -92,47 +92,66 @@ class GenerateLicense extends Component {
 
     }
     /**
-    * @class NameErrorJarsLicense
-    * @extends {Component}
-    * @description componentWillMount
-    */
+     * @class NameErrorJarsLicense
+     * @extends {Component}
+     * @description componentWillMount
+     */
     componentWillMount() {
         ServiceManager.extractJars(this.state.packName).then((response) => {
-            if (response.data.responseData.length === 0) {
-                this.enterJarFunction();
+            if (response.data.responseType === 'Done') {
+                let intervalID = setInterval(function () {
+
+                    ServiceManager.checkProgress().then((response) => {
+                        if (response.data.responseStatus === "complete") {
+                            if (response.data.responseData.length === 0) {
+                                this.enterJarFunction();
+                            } else {
+                                this.setState(() => {
+                                    return {
+                                        nameMissingJars: response.data.responseData,
+                                        nameJars: response.data.responseData,
+                                        displayProgress: 'none',
+                                        displayForm: 'block',
+                                    };
+                                });
+                            }
+                            clearTimeout(intervalID);
+                        }
+                    }).catch((error) => {
+                        throw new Error(error);
+                    });
+
+                }.bind(this), 5000);
+
             } else {
                 this.setState(() => {
                     return {
-                        nameMissingJars: response.data.responseData,
-                        nameJars: response.data.responseData,
-                        displayProgress: 'none',
-                        displayForm: 'block',
+                        errorMessage: response.data.responseMessage,
                     };
                 });
+                this.handleOpenError();
+
             }
+
         }).catch((error) => {
             throw new Error(error);
         });
 
     }
     /**
-    * @param {any} e event
-    * go back to request
-    */
+     * @param {any} e event
+     * go back to request
+     */
     setVersion(e) {
-        const id = parseInt(e.target.name, 10);
+        // const id = parseInt(e.target.name, 10);
         const versionValue = e.target.value;
         const nameJarsList = this.state.nameJars.map((jar, i) => {
-            if (i !== id) {
-                return jar;
-            } else {
-                const jarFile = {
-                    id: i,
-                    name: jar.name,
-                    version: versionValue,
-                };
-                return (jarFile);
-            }
+            const jarFile = {
+                index: i,
+                name: jar.name,
+                version: versionValue,
+            };
+            return (jarFile);
         });
         this.setState(() => {
             return {
@@ -141,23 +160,18 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * @param {any} e event
-    * go back to request
-    */
+     * @param {any} e event
+     * go back to request
+     */
     setName(e) {
-        const id = parseInt(e.target.name, 10);
         const nameValue = e.target.value;
         const nameJarsList = this.state.nameJars.map((jar, i) => {
-            if (i !== id) {
-                return jar;
-            } else {
-                const jarFile = {
-                    id: i,
-                    name: nameValue,
-                    version: jar.version,
-                };
-                return (jarFile);
-            }
+            const jarFile = {
+                index: i,
+                name: nameValue,
+                version: jar.version,
+            };
+            return (jarFile);
         });
         this.setState(() => {
             return {
@@ -211,9 +225,9 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * @param {any} e event
-    * go back to request
-    */
+     * @param {any} e event
+     * go back to request
+     */
     handleEnterJars(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -234,9 +248,25 @@ class GenerateLicense extends Component {
         e.preventDefault();
         e.stopPropagation();
         e.nativeEvent.stopImmediatePropagation();
+        this.setState(() => {
+            return {
+                displayProgress: 'block',
+                displayFormLicense: 'none',
+                confirmLicense: false,
+            };
+        });
         ServiceManager.addLicense(this.state.licenseMissingComponents, this.state.licenseMissingLibraries).then((responseNxt) => {
             if (responseNxt.data.responseType === 'Done') {
-                console.log("successfully added license");
+                this.setState(() => {
+                    return {
+                        displayDownload: 'block',
+                        displayFormLicense: 'none',
+                        displayLoader: 'none',
+                        displayProgress: 'none',
+                        header: 'Download License Here',
+                        stepIndex: 3,
+                    };
+                });
             } else {
                 console.log("error while adding license license");
             }
@@ -245,9 +275,9 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * @param {any} e event
-    * go back to request
-    */
+     * @param {any} e event
+     * go back to request
+     */
     generateLicense(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -284,12 +314,13 @@ class GenerateLicense extends Component {
             throw new Error(error);
         });
         /* eslint-enable */
+        this.backToMain();
 
     }
     /**
-    * handle open
-    * @param {any} e event
-    */
+     * handle open
+     * @param {any} e event
+     */
     handleOpen(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -301,8 +332,8 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * handle close
-    */
+     * handle close
+     */
     handleClose() {
         this.setState(() => {
             return {
@@ -326,8 +357,8 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * handle open
-    */
+     * handle open error message
+     */
     handleOpenError() {
         this.setState(() => {
             return {
@@ -336,8 +367,8 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * handle close
-    */
+     * handle close
+     */
     handleCloseError() {
         this.setState(() => {
             return {
@@ -346,8 +377,8 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * handle open
-    */
+     * handle open
+     */
     handleOpenSuccess() {
         this.setState(() => {
             return {
@@ -356,8 +387,8 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * handle close
-    */
+     * handle close
+     */
     handleCloseSuccess() {
         this.setState(() => {
             return {
@@ -366,8 +397,8 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * handle Next
-    */
+     * handle Next
+     */
     handleNext() {
         let stepIndexNo = this.state.stepIndex;
         stepIndexNo += 1;
@@ -378,38 +409,38 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * handle Prev
-    */
+     * handle Prev
+     */
     handlePrev() {
         let stepIndexNo = this.state.stepIndex;
         stepIndexNo -= 1;
         if (this.state.stepIndex > 0) {
             this.setState(() => {
                 return {
-                    stepIndex: stepIndexNo,
+                    stepIndex: 0,
                 };
             });
         }
     }
     /**
-    * reload page
-    */
+     * reload page
+     */
     reloadPage() {
         window.location.reload();
     }
     /**
-    * reload page
-    */
+     * reload page
+     */
     backToMain() {
         hashHistory.push('/');
     }
     /**
-    * handleComponentSelect
-    * @param {any} event event
-    * @param {any} j event
-    * @param {any} n event
-    * @param {any} m event
-    */
+     * handleComponentSelect
+     * @param {any} event event
+     * @param {any} j event
+     * @param {any} n event
+     * @param {any} m event
+     */
     handleComponentSelect(event, j, n, m) {
         const comp = this.state.licenseMissingComponents.map((jar, i) => {
             if (i !== event) {
@@ -432,12 +463,12 @@ class GenerateLicense extends Component {
         });
     }
     /**
-    * handleLibrarySelect
-    * @param {any} event event
-    * @param {any} j event
-    * @param {any} n event
-    * @param {any} m event
-    */
+     * handleLibrarySelect
+     * @param {any} event event
+     * @param {any} j event
+     * @param {any} n event
+     * @param {any} m event
+     */
     handleLibrarySelect(event, j, n, m) {
         const lib = this.state.licenseMissingLibraries.map((jar, i) => {
             if (i !== event) {
@@ -461,10 +492,10 @@ class GenerateLicense extends Component {
     }
 
     /**
-    * @class WaitingRequests
-    * @extends {Component}
-    * @description Sample React component
-    */
+     * @class WaitingRequests
+     * @extends {Component}
+     * @description Sample React component
+     */
     render() {
         /* eslint-disable */
         const actions = [
@@ -476,7 +507,6 @@ class GenerateLicense extends Component {
             <FlatButton
                 label="Yes"
                 primary={true}
-                keyboardFocused={true}
                 onClick={this.handleEnterJars}
             />,
         ];
@@ -490,21 +520,16 @@ class GenerateLicense extends Component {
                 label="Recheck"
                 primary={true}
                 onClick={this.handleCloseConfirm}
-            />,
+            />
         ];
         const actionsError = [
-            <Link to={'/app/manageLicense'}>
+            <Link to={'/app/managePacks'}>
                 <FlatButton
                     label="Back"
                     primary={true}
                 />
             </Link>,
-            <FlatButton
-                label="Another Request"
-                primary={true}
-                keyboardFocused={true}
-                onClick={this.reloadPage}
-            />,
+
         ];
         const actionsSuccess = [
             <Link to={'/'}>
@@ -549,7 +574,7 @@ class GenerateLicense extends Component {
                         <TableRowColumn key={k}>{jars[i].name}</TableRowColumn>
                         <TableRowColumn key={k + 1}>
                             <TextField
-                                name={jars[i].id.toString()}
+                                name={jars[i].name.toString()}
                                 onChange={this.setName}
                                 hintText='Enter name'
                             />
@@ -679,14 +704,14 @@ class GenerateLicense extends Component {
                 </form>
                 {/* eslint-disable max-len */}
                 <form onSubmit={this.handleOpenConfirm} style={{ display: this.state.displayFormLicense }}>
-                    <div>
-                        {/* <Subheader>Components</Subheader> */}
+                    <div style={{ display: displayComponent }}>
+                        <Subheader style={styles.subHeader}>Components</Subheader>
                         <Table>
                             <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
                                 <TableRow key={0}>
                                     <TableHeaderColumn>Name</TableHeaderColumn>
                                     <TableHeaderColumn>Version</TableHeaderColumn>
-                                    <TableHeaderColumn>Type</TableHeaderColumn>
+                                    <TableHeaderColumn>File Name</TableHeaderColumn>
                                     <TableHeaderColumn>Select License</TableHeaderColumn>
                                 </TableRow>
                             </TableHeader>
@@ -696,14 +721,14 @@ class GenerateLicense extends Component {
                         </Table>
                     </div>
                     <br />
-                    <div>
-                        {/* <Subheader>Libraries</Subheader> */}
+                    <div style={{ display: displayLibrary }}>
+                        <Subheader style={styles.subHeader}>Libraries</Subheader>
                         <Table>
                             <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
                                 <TableRow key={0}>
                                     <TableHeaderColumn>Name</TableHeaderColumn>
                                     <TableHeaderColumn>Version</TableHeaderColumn>
-                                    <TableHeaderColumn>Type</TableHeaderColumn>
+                                    <TableHeaderColumn>File Name</TableHeaderColumn>
                                     <TableHeaderColumn>Select License</TableHeaderColumn>
                                 </TableRow>
                             </TableHeader>
@@ -793,7 +818,7 @@ class GenerateLicense extends Component {
                     open={this.state.openError}
                     onRequestClose={this.goBackToRequest}
                 >
-                    Error occurs when submit the request.
+                    {this.state.errorMessage}
                 </Dialog>
 
                 <div className="container-fluid" style={{ display: this.state.displayProgress }}>
@@ -831,4 +856,4 @@ class GenerateLicense extends Component {
     }
 }
 
-export default GenerateLicense;
+export default ManageJars;

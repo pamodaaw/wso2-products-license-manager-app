@@ -15,10 +15,12 @@ class ServiceManager extends Component {
     getUploadedPacks() {
         const url = MainData.microServiceURL + 'getPacks';
         const requestConfig = { withCredentials: true, timeout: 40000000 };
+        // const requestConfig = { withCredentials: true, timeout: 10 };
+
         return axios.get(url, requestConfig).then((response) => {
             return response;
         }).catch((error) => {
-            console.log(error);//eslint-disable-line
+            throw error
         });
     }
     /**
@@ -31,20 +33,20 @@ class ServiceManager extends Component {
         return axios.get(url, requestConfig).then((response) => {
             return response;
         }).catch((error) => {
-            console.log(error);//eslint-disable-line
+            throw error
         });
     }
     /**
-* getLicense
-* @returns {Promise} promise
-*/
+    * getLicense
+    * @returns {Promise} promise
+    */
     getLicense() {
         const url = MainData.microServiceURL + 'getLicense';
         const requestConfig = { withCredentials: true, timeout: 40000000 };
         return axios.get(url, requestConfig).then((response) => {
             return response;
         }).catch((error) => {
-            console.log(error);//eslint-disable-line
+            throw error
         });
     }
     /**
@@ -53,11 +55,11 @@ class ServiceManager extends Component {
     */
     dowloadLicense() {
         const url = MainData.microServiceURL + 'downloadLicense';
-        const requestConfig = { withCredentials: true, timeout: 40000000 };
+        const requestConfig = { withCredentials: true, timeout: 30000 };
         return axios.get(url, requestConfig).then((response) => {
             return response;
         }).catch((error) => {
-            console.log(error);//eslint-disable-line
+            throw error
         });
     }
 
@@ -70,14 +72,10 @@ class ServiceManager extends Component {
         const requestConfig = {
             withCredentials: true,
         };
-        // const requestData = {
-        //     jars: data,
-        //     requestBy: email,
-        // };
         return axios.post(url, selectedPack, requestConfig).then((response) => {
             return response;
         }).catch((error) => {
-            console.log(error);//eslint-disable-line
+            throw error
         });
     }
     /**
@@ -98,7 +96,7 @@ class ServiceManager extends Component {
         return axios.post(url, requestData, requestConfig).then((response) => {
             return response;
         }).catch((error) => {
-            console.log(error);//eslint-disable-line
+            throw error
         });
     }
     /**
@@ -117,7 +115,22 @@ class ServiceManager extends Component {
         return axios.post(url, JSON.stringify(licenseData), requestConfig).then((response) => {
             return response;
         }).catch((error) => {
-            console.log(error);//eslint-disable-line
+            throw error
+        });
+    }
+    /**
+    * checkprogress
+    * @returns {Promise} promise
+    */
+    checkProgress() {
+        const url = MainData.microServiceURL + 'progress';
+        const requestConfig = {
+            withCredentials: true,
+        };
+        return axios.get(url, requestConfig).then((response) => {
+            return response;
+        }).catch((error) => {
+            throw error
         });
     }
 }

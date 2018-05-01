@@ -97,29 +97,32 @@ class GenerateLicense extends Component {
     * @description componentWillMount
     */
     componentWillMount() {
-        ServiceManager.selectLicense().then((response) => {
-            this.setState(() => {
-                return {
-                    license: response.data.responseData,
-                };
-            });
-        }).catch((error) => {
-            throw new Error(error);
-        });
         ServiceManager.extractJars(this.state.packName).then((response) => {
             if (response.data.responseType === 'Done') {
-                if (response.data.responseData.length === 0) {
-                    this.enterJarFunction();
-                } else {
-                    this.setState(() => {
-                        return {
-                            nameMissingJars: response.data.responseData,
-                            nameJars: response.data.responseData,
-                            displayProgress: 'none',
-                            displayForm: 'block',
-                        };
+                let intervalID = setInterval(function () {
+
+                    ServiceManager.checkProgress().then((response) => {
+                        if (response.data.responseStatus === "complete") {
+                            if (response.data.responseData.length === 0) {
+                                this.enterJarFunction();
+                            } else {
+                                this.setState(() => {
+                                    return {
+                                        nameMissingJars: response.data.responseData,
+                                        nameJars: response.data.responseData,
+                                        displayProgress: 'none',
+                                        displayForm: 'block',
+                                    };
+                                });
+                            }
+                            clearTimeout(intervalID);
+                        }
+                    }).catch((error) => {
+                        throw new Error(error);
                     });
-                }
+
+                }.bind(this), 5000);
+
             } else {
                 this.setState(() => {
                     return {
@@ -129,7 +132,7 @@ class GenerateLicense extends Component {
                 this.handleOpenError();
 
             }
-
+   
         }).catch((error) => {
             throw new Error(error);
         });
@@ -520,7 +523,7 @@ class GenerateLicense extends Component {
             />
         ];
         const actionsError = [
-            <Link to={'/app/manageLicense'}>
+            <Link to={'/app/managePacks'}>
                 <FlatButton
                     label="Back"
                     primary={true}

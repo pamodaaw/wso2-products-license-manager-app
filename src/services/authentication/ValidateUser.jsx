@@ -14,7 +14,7 @@ class ValidateUser extends Component {
     * @returns {Promise} promise
     */
     getUserDetails() {
-        const url = MainData.appServiceURL + "userdetails/get";
+        const url = MainData.appServiceURL + "userdetails";
         const requestHeaders = { withCredentials: true };
         return axios.get(url, requestHeaders).then((response) => {
             return response.data;
